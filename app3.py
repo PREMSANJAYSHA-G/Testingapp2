@@ -8,6 +8,7 @@ import os
 app = Flask(__name__)
 
 # ----------------- Config -----------------
+# ----------------- Config -----------------
 db = mysql.connector.connect(
     host="database-1.c036qg226bjf.us-east-1.rds.amazonaws.com",
     user="testing",
