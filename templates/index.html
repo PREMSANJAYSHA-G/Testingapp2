@@ -1,27 +1,187 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flask + S3 File Manager</title>
+  <style>
+    /* Reset + Layout */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body {
+      background: #f4f7fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    /* Card Container */
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 40px;
+      width: 100%;
+      max-width: 700px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e40af;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+    }
+
+    /* Upload Form */
+    form.upload-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 2px dashed #93c5fd;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 35px;
+      background: #f0f9ff;
+      transition: 0.3s;
+    }
+
+    form.upload-form:hover {
+      border-color: #2563eb;
+      background: #e0f2fe;
+    }
+
+    input[type="file"] {
+      margin-bottom: 15px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    button:hover {
+      background: #1e3a8a;
+      transform: translateY(-1px);
+    }
+
+    /* File List */
+    h2 {
+      color: #1e40af;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      width: 100%;
+    }
+
+    li {
+      background: #f9fafb;
+      margin-bottom: 12px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e5e7eb;
+    }
+
+    li span {
+      font-weight: 500;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    a {
+      text-decoration: none;
+      background: #16a34a;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      transition: 0.25s;
+    }
+
+    a:hover {
+      background: #15803d;
+    }
+
+    form.delete-form button {
+      background: #dc2626;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+
+    form.delete-form button:hover {
+      background: #991b1b;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px;
+      }
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Upload File (saved to S3)</h1>
-  <form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" required>
-    <button type="submit">Upload</button>
-  </form>
+  <div class="container">
+    <h1>☁️ Flask + S3 File Manager</h1>
 
-  <h2>Files</h2>
-  <ul>
-    {% for file in files %}
+    <!-- Upload Section -->
+    <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" required>
+      <button type="submit">Upload File</button>
+    </form>
+
+    <!-- File List -->
+    <h2>📂 Uploaded Files</h2>
+    <ul>
+      {% for file in files %}
       <li>
-        {{ file[1] }} — uploaded at {{ file[3] }}
-        <a href="{{ url_for('download_file', file_id=file[0]) }}">Download</a>
-        <form action="{{ url_for('delete_file', file_id=file[0]) }}" method="post" style="display:inline">
-          <button type="submit">Delete metadata</button>
-        </form>
+        <div>
+          <span>{{ file[1] }}</span><br>
+          <small>Uploaded at {{ file[3] }}</small>
+        </div>
+        <div class="file-actions">
+          <a href="{{ url_for('download_file', file_id=file[0]) }}">Download</a>
+          <form class="delete-form" action="{{ url_for('delete_file', file_id=file[0]) }}" method="post">
+            <button type="submit">Delete</button>
+          </form>
+        </div>
       </li>
-    {% endfor %}
-  </ul>
+      {% endfor %}
+    </ul>
+  </div>
 </body>
 </html>
