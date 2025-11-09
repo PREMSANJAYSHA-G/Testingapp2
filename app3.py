@@ -4,10 +4,13 @@ import boto3
 from datetime import datetime
 from uuid import uuid4
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
-# ----------------- Config -----------------
 # ----------------- Config -----------------
 db = mysql.connector.connect(
     host="database-1.c036qg226bjf.us-east-1.rds.amazonaws.com",
@@ -20,10 +23,11 @@ cursor = db.cursor()
 
 S3_BUCKET = os.getenv("S3_BUCKET", "s3myfirsttesting")
 S3_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+
 s3 = boto3.client(
     's3',
-    aws_access_key_id=os.getenv("aws_access_key_id"),
-    aws_secret_access_key=os.getenv("aws_secret_access_key"),
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
     region_name=S3_REGION
 )
 
@@ -62,3 +66,17 @@ def upload_file():
         )
 
         # 3️⃣ Store metadata in DB
+        upload_time = datetime.utcnow()
+        cursor.execute(
+            "INSERT INTO files (filename, s3_key, upload_time) VALUES (%s, %s, %s)",
+            (original_filename, s3_key, upload_time)
+        )
+        db.commit()
+
+        return redirect(url_for('index'))
+    return "No file selected", 400
+
+
+# ----------------- Run Flask App -----------------
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
